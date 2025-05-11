@@ -1,7 +1,8 @@
 const express = require("express");
 const app = express();
 const loginRoute = require("./routes/login");
-app.use("/spotify", loginRoute)
+
+app.use("/spotify", loginRoute);
 app.get("/", (req, res) => {
   res.send("Hello");
 });
