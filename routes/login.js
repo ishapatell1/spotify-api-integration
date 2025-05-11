@@ -8,8 +8,9 @@ router.get("/login", (req, res) => {
   console.log("SPOTIFY_CLIENT_ID = ", process.env.SPOTIFY_CLIENT_ID);
   const query = querystring.stringify({
     response_type: "code",
-    client_id: process.env.SPOTIFY_CLIENT_ID,
-    redirect_uri: process.env.REDIRECT_URI,
+    client_id: "e33a66df4a69414b81a0d2a31bd357c2",
+    redirect_uri:
+      "https://spotify-api-integration-production.up.railway.app/spotify/callback",
     scope:
       "user-read-playback-state user-modify-playback-state user-read-currently-playing user-top-read user-follow-read streaming",
   });
@@ -20,9 +21,10 @@ router.get("/callback", async (req, res) => {
   const body = querystring.stringify({
     grant_type: "authorization_code",
     code,
-    redirect_uri: process.env.REDIRECT_URI,
-    client_id: process.env.SPOTIFY_CLIENT_ID,
-    client_secret: process.env.SPOTIFY_CLIENT_SECRET,
+    redirect_uri:
+      "https://spotify-api-integration-production.up.railway.app/spotify/callback",
+    client_id: "e33a66df4a69414b81a0d2a31bd357c2",
+    client_secret: "99cc83a2aafc46ffb83d550233f8cf5a",
   });
 
   try {
