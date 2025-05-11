@@ -3,8 +3,9 @@ const router = express.Router();
 const querystring = require("querystring");
 const axios = require("axios");
 require("dotenv").config();
-console.log(process.env.SPOTIFY_CLIENT_ID);
+
 router.get("/login", (req, res) => {
+  console.log("SPOTIFY_CLIENT_ID = ", process.env.SPOTIFY_CLIENT_ID);
   const query = querystring.stringify({
     response_type: "code",
     client_id: process.env.SPOTIFY_CLIENT_ID,
