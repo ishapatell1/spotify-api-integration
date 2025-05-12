@@ -12,7 +12,7 @@ const spotify = require("./routes/spotify");
 
 app.use(
   session({
-    secret: process.env.SPOTIFY_CLIENT_SECRET,
+    secret: "e33a66df4a69414b81a0d2a31bd357c2",
     resave: false,
     saveUninitialized: true,
   })
@@ -24,4 +24,8 @@ app.get("/", (req, res) => {
 });
 app.listen(3000, () => {
   console.log("App is running at 3000");
+});
+app.use((err, req, res, next) => {
+  console.error("Unhandled Error:", err.stack);
+  res.status(500).json({ error: "Internal Server Error" });
 });
