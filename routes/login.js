@@ -75,5 +75,49 @@ router.get("/followed-artisits", async (req, res) => {
   }
 });
 
-//
+//Now Playing API
+
+router.get("/now-playing", async (req, res) => {
+  if (!global.spotifyAccessToken) {
+    return res.send("Please Login");
+  }
+  try {
+    const response = await axios.get(
+      "https://api.spotify.com/v1/me/player/currently-playing ",
+      {
+        headers: {
+          Authorization: `Bearer ${global.spotifyAccessToken}`,
+        },
+      }
+    );
+    if (!response.data)
+      return res.json({ message: "Nothing playing right now!" });
+    const track = response.data.item;
+
+    const responsetrack = await axios.get(
+      "https://api.spotify.com/v1/me/top/tracks?limit=10",
+      {
+        headers: {
+          Authorization: `Bearer ${global.spotifyAccessToken}`,
+        },
+      }
+    );
+    const toptracks = responsetrack.data.items.map((track) => ({
+      id: track.id,
+      track: track.name,
+      artists: track.artists.map((a) => a.name),
+      preview_url: track.preview_url,
+    }));
+    res.json({
+      name: track.name,
+      artists: track.artists.map((a) => a.name),
+      album: track.album.name,
+      external_url: track.external_urls.spotify,
+      top_tracks: toptracks,
+    });
+  } catch (err) {
+    res.status.json("Error Playing", err);
+  }
+});
+
 module.exports = router;
