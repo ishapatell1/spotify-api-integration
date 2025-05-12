@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const querystring = require("querystring");
 const axios = require("axios");
-require("dotenv").config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 router.get("/login", (req, res) => {
   console.log("SPOTIFY_CLIENT_ID = ", process.env.SPOTIFY_CLIENT_ID);
@@ -46,4 +48,25 @@ router.get("/callback", async (req, res) => {
   }
 });
 
+router.get("/followed-artisits", async (req, res) => {
+  const token = global.spotifyAccessToken;
+  if (!token) {
+    return res.send("Please Login!");
+  }
+  try {
+    const response = await axios.get(
+      "https://api.spotify.com/v1/me/following?type=artist",
+      {
+        headers: {
+          Authorization: `Bearer${token}`,
+        },
+      }
+    );
+    const artistItems = response.data.artists.items;
+    const artistNames = artistItems.map((artist) => artist.name);
+    res.send(artistNames)
+  } catch (error) {
+    res.status(500).send(" Errror: ", error.message);
+  }
+});
 module.exports = router;
