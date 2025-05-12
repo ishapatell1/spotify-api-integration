@@ -1,10 +1,15 @@
 require("dotenv").config();
 const express = require("express");
-const session = require("express-session");
+
 const app = express();
+
+const session = require("express-session");
+const cors = require("cors");
+app.use(cors());
 app.use(express.json());
 const loginRoute = require("./routes/login");
 const spotify = require("./routes/spotify");
+
 app.use(
   session({
     secret: process.env.SPOTIFY_CLIENT_SECRET,
