@@ -5,14 +5,14 @@ const axios = require("axios");
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
-
+const clientsecret = process.env.SPOTIFY_CLIENT_SECRET;
+const clientId = process.env.SPOTIFY_CLIENT_ID;
+const redirectURI = process.env.REDIRECT_URI;
 router.get("/login", (req, res) => {
-  console.log("SPOTIFY_CLIENT_ID = ", process.env.SPOTIFY_CLIENT_ID);
   const query = querystring.stringify({
     response_type: "code",
-    client_id: "e33a66df4a69414b81a0d2a31bd357c2",
-    redirect_uri:
-      "https://spotify-api-integration-production.up.railway.app/spotify/callback",
+    client_id: clientId,
+    redirect_uri: redirectURI,
     scope:
       "user-read-playback-state user-modify-playback-state user-read-currently-playing user-top-read user-follow-read streaming",
   });
@@ -23,10 +23,9 @@ router.get("/callback", async (req, res) => {
   const body = querystring.stringify({
     grant_type: "authorization_code",
     code,
-    redirect_uri:
-      "https://spotify-api-integration-production.up.railway.app/spotify/callback",
-    client_id: "e33a66df4a69414b81a0d2a31bd357c2",
-    client_secret: "99cc83a2aafc46ffb83d550233f8cf5a",
+    redirect_uri: redirectURI,
+    client_id: clientId,
+    client_secret: clientsecret,
   });
 
   try {
@@ -38,9 +37,10 @@ router.get("/callback", async (req, res) => {
       }
     );
 
-    const { access_token } = response.data;
     // Store the access token in memory for use in further requests
+    const { access_token, refresh_token, expires_in } = response.data;
     global.spotifyAccessToken = access_token;
+    global.spotifyRefreshToken = refresh_token;
 
     res.send("Login successful! Now you can use the /spotify endpoints.");
   } catch (err) {
@@ -58,15 +58,22 @@ router.get("/followed-artisits", async (req, res) => {
       "https://api.spotify.com/v1/me/following?type=artist",
       {
         headers: {
-          Authorization: `Bearer${token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
     const artistItems = response.data.artists.items;
-    const artistNames = artistItems.map((artist) => artist.name);
-    res.send(artistNames)
+    console.log(artistItems);
+    const artistNames = artistItems.map((artist) => ({
+      name: artist.name,
+      genres: artist.genres,
+      followers: artist.followers.total,
+    }));
+    res.send(artistNames);
   } catch (error) {
-    res.status(500).send(" Errror: ", error.message);
+    res.status(500).send(` Errror: ${error.message}`);
   }
 });
+
+//
 module.exports = router;
